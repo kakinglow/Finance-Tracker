@@ -1,4 +1,4 @@
-#  Finance Sheet Automation
+#  Finance Tracker
 
 This project automates the process of parsing and categorizing CSV bank statements, uploading them into a structured Google Sheet, and maintaining a financial summary per month.
 
