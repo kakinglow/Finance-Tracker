@@ -1,0 +1,6 @@
+.venv
+statements
+credentials.json
+__pycache__
+.ruff_cache
+google_secrets.py
