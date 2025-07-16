@@ -49,21 +49,31 @@ def update_master_summary_from_data(values, month, year, bank_type):
         format_cell_range(master, "A1", bold)
         format_cell_range(master, "B2:K2", bold)
 
-    row = 3
-    while master.cell(row, 1).value:
-        row += 1
+    current_year_label = f"=== {year} ==="
+    data = master.get_all_values()
+    insert_row = None
+
+    for i, row in enumerate(data[2:], start=3):  
+        if row[0].strip() == current_year_label:
+            insert_row = i + 1
+
+    if insert_row is None:        
+        master.insert_row([current_year_label], index=3)
+        insert_row = 4
+
+    master.insert_row([""] * 12, index=insert_row)
 
     label = f"{month} - {bank_type}"
     total_without_salary = round(sum(values[1:]), 2)
     total_with_salary = round(sum(values), 2)
 
-    master.update_acell(f"A{row}", label)
+    master.update_acell(f"A{insert_row}", label)
     master.update(
-        f"B{row}:L{row}", [values + [total_without_salary, total_with_salary]]
+        f"B{insert_row}:L{insert_row}", [values + [total_without_salary, total_with_salary]]
     )
-    format_cell_range(master, f"B{row}:K{row}", money)
+    format_cell_range(master, f"B{insert_row}:K{insert_row}", money)
 
-    print(f"✅ Master sheet updated: {label} (row {row})")
+    print(f"✅ Master sheet updated: {label} (row {insert_row})")
 
 
 def update_finance_sheet(csv_file, bank):
