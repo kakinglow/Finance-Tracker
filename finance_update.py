@@ -27,14 +27,16 @@ CATEGORIES = [
 ]
 
 
-def summarize_category_totals(df, bank_type):
+def summarize_category_totals(df: pd.DataFrame, bank_type: str) -> list:
     filtered = df.copy()
     filtered = filtered[filtered["Category"].notnull()]
     summary = filtered.groupby("Category")["Amount"].sum().to_dict()
     return [round(summary.get(cat, 0.0), 2) for cat in CATEGORIES]
 
 
-def update_master_summary_from_data(values, month, year, bank_type):
+def update_master_summary_from_data(
+    values: list, month: str, year: str, bank_type: str
+):
     sheet = authenticate_open_worksheet(SCOPES, SPREADSHEET_ID)
     master = sheet.worksheet("Master")
 
@@ -53,11 +55,11 @@ def update_master_summary_from_data(values, month, year, bank_type):
     data = master.get_all_values()
     insert_row = None
 
-    for i, row in enumerate(data[2:], start=3):  
+    for i, row in enumerate(data[2:], start=3):
         if row[0].strip() == current_year_label:
             insert_row = i + 1
 
-    if insert_row is None:        
+    if insert_row is None:
         master.insert_row([current_year_label], index=3)
         insert_row = 4
 
@@ -69,14 +71,15 @@ def update_master_summary_from_data(values, month, year, bank_type):
 
     master.update_acell(f"A{insert_row}", label)
     master.update(
-        f"B{insert_row}:L{insert_row}", [values + [total_without_salary, total_with_salary]]
+        f"B{insert_row}:L{insert_row}",
+        [values + [total_without_salary, total_with_salary]],
     )
     format_cell_range(master, f"B{insert_row}:K{insert_row}", money)
 
     print(f"✅ Master sheet updated: {label} (row {insert_row})")
 
 
-def update_finance_sheet(csv_file, bank):
+def update_finance_sheet(csv_file: str, bank: str):
     sheet = authenticate_open_worksheet(SCOPES, SPREADSHEET_ID)
 
     month, year = month_year_extractor(csv_file)

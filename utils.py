@@ -34,7 +34,7 @@ CATEGORY_RULES = {
 }
 
 
-def clean_csv(input_file_name):
+def clean_csv(input_file_name: str) -> list:
     clean_rows = []
 
     with open(input_file_name, newline="", encoding="utf-8") as file:
@@ -53,7 +53,7 @@ def clean_csv(input_file_name):
     return clean_rows
 
 
-def category_labelling(description):
+def category_labelling(description: str) -> str:
     description = description.lower()
     for category, keywords in CATEGORY_RULES.items():
         if any(keyword in description for keyword in keywords):
@@ -62,14 +62,16 @@ def category_labelling(description):
     return "Other"
 
 
-def save_to_csv(rows, file_path):
+def save_to_csv(rows: list, file_path: str):
     with open(file_path, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow(["Date", "Description", "Amount", "Category"])
         writer.writerows(rows)
 
 
-def set_dynamic_month_column(sheet, month, col_block_width=10):
+def set_dynamic_month_column(
+    sheet: gspread.Worksheet, month: str, col_block_width=10
+) -> int:
     first_row = sheet.row_values(1)
     for block_start in range(0, len(first_row), col_block_width):
         middle_index = block_start + (col_block_width // 2)
@@ -90,7 +92,9 @@ def set_dynamic_month_column(sheet, month, col_block_width=10):
     return next_block_start + 1
 
 
-def authenticate_open_worksheet(SCOPES, SPREADSHEET_ID):
+def authenticate_open_worksheet(
+    SCOPES: list[str], SPREADSHEET_ID: str
+) -> gspread.Spreadsheet:
     creds = Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
     client = gspread.authorize(creds)
 
@@ -98,7 +102,7 @@ def authenticate_open_worksheet(SCOPES, SPREADSHEET_ID):
     return spreadsheet
 
 
-def month_year_extractor(csv_path):
+def month_year_extractor(csv_path: str) -> str:
     filename = os.path.basename(csv_path)
     month_str, year = filename.replace(".csv", "").split("_")
     month = month_str.capitalize()
@@ -106,14 +110,14 @@ def month_year_extractor(csv_path):
     return month, year
 
 
-def label_rows(cleaned_csv):
+def label_rows(cleaned_csv: str) -> list:
     return [
         [date, description, amount, category_labelling(description)]
         for date, description, amount in cleaned_csv
     ]
 
 
-def run_categorizer(input_file_path, bank):
+def run_categorizer(input_file_path: str, bank: str) -> str:
     cleaned_rows = clean_csv(input_file_path)
 
     labeled_rows = label_rows(cleaned_rows)
