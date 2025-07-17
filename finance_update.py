@@ -36,7 +36,7 @@ def summarize_category_totals(df: pd.DataFrame, bank_type: str) -> list:
 
 def update_master_summary_from_data(
     values: list, month: str, year: str, bank_type: str
-):
+) -> None:
     sheet = authenticate_open_worksheet(SCOPES, SPREADSHEET_ID)
     master = sheet.worksheet("Master")
 
@@ -79,7 +79,7 @@ def update_master_summary_from_data(
     print(f"✅ Master sheet updated: {label} (row {insert_row})")
 
 
-def update_finance_sheet(csv_file: str, bank: str):
+def update_finance_sheet(csv_file: str, bank: str) -> None:
     sheet = authenticate_open_worksheet(SCOPES, SPREADSHEET_ID)
 
     month, year = month_year_extractor(csv_file)
