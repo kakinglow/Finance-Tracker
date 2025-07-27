@@ -58,7 +58,6 @@ def update_master_summary_from_data(
     total_with_salary = round(sum(values), 2)
     new_row = [year, label] + values + [total_without_salary, total_with_salary]
 
-
     start_column = 3
     end_column = 2 + len(CATEGORIES) + 2
     start_cell = rowcol_to_a1(3, start_column)
@@ -67,7 +66,6 @@ def update_master_summary_from_data(
     format_cell_range(master, f"{start_cell}:{end_cell}", money)
 
     master.set_basic_filter(f"A2:{chr(65 + len(expected_headers) - 1)}2")
-
 
     print(f"✅ Master sheet updated: {label} (row 3)")
 
