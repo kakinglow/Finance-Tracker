@@ -13,10 +13,11 @@ from google_secrets import SPREADSHEET_ID
 
 BANK_TYPE = {"hsbc": "Debit", "amex": "Credit"}
 
-BANK_COLUMN_OFFSETS = {"Debit": 0, "Credit": 5}
+BANK_COLUMN_OFFSETS = {"Debit": 0, "Credit": 6}
 
 CATEGORIES = [
     "Salary",
+    "Investment",
     "Food & Dining",
     "Transport",
     "Groceries",
@@ -44,39 +45,31 @@ def update_master_summary_from_data(
     money = CellFormat(numberFormat=NumberFormat(type="CURRENCY", pattern="£#,##0.00"))
 
     headers = master.row_values(2)
-    if headers[: len(CATEGORIES)] != CATEGORIES:
-        master.update("B2", [CATEGORIES])
+    expected_headers = ["Year", "Label"] + CATEGORIES + ["Total (No Salary)", "Total"]
+
+    if headers[: len(expected_headers)] != expected_headers:
+        master.update("A2", [expected_headers])
         master.update_acell("A1", "Finance Overview")
-        master.update("J2:K2", [["Total (No Salary)", "Total"]])
         format_cell_range(master, "A1", bold)
-        format_cell_range(master, "B2:K2", bold)
-
-    current_year_label = f"=== {year} ==="
-    data = master.get_all_values()
-    insert_row = None
-
-    for i, row in enumerate(data[2:], start=3):
-        if row[0].strip() == current_year_label:
-            insert_row = i + 1
-
-    if insert_row is None:
-        master.insert_row([current_year_label], index=3)
-        insert_row = 4
-
-    master.insert_row([""] * 12, index=insert_row)
+        format_cell_range(master, f"A2:{chr(65 + len(expected_headers) - 1)}2", bold)
 
     label = f"{month} - {bank_type}"
     total_without_salary = round(sum(values[1:]), 2)
     total_with_salary = round(sum(values), 2)
+    new_row = [year, label] + values + [total_without_salary, total_with_salary]
 
-    master.update_acell(f"A{insert_row}", label)
-    master.update(
-        f"B{insert_row}:L{insert_row}",
-        [values + [total_without_salary, total_with_salary]],
-    )
-    format_cell_range(master, f"B{insert_row}:K{insert_row}", money)
 
-    print(f"✅ Master sheet updated: {label} (row {insert_row})")
+    start_column = 3
+    end_column = 2 + len(CATEGORIES) + 2
+    start_cell = rowcol_to_a1(3, start_column)
+    end_cell = rowcol_to_a1(3, end_column)
+    master.insert_row(new_row, index=3)
+    format_cell_range(master, f"{start_cell}:{end_cell}", money)
+
+    master.set_basic_filter(f"A2:{chr(65 + len(expected_headers) - 1)}2")
+
+
+    print(f"✅ Master sheet updated: {label} (row 3)")
 
 
 def update_finance_sheet(csv_file: str, bank: str) -> None:

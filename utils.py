@@ -19,6 +19,7 @@ CATEGORY_RULES = {
         "restaurant",
         "market hall",
     ],
+    "Investment": ["vanguard", "coinbase", "trading"],
     "Transport": ["tfl", "national rail", "uber travel"],
     "Bills & Subscriptions": [
         "ee",
